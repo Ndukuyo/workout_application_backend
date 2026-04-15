@@ -11,6 +11,8 @@ class Exercise(db.Model):
     category = db.Column(db.String(50), nullable=False)
     equipment_needed = db.Column(db.Boolean, default=False)
 
+    workout_exercises = db.relationship('WorkoutExercise', backref='exercise', cascade='all, delete-orphan')
+
 
 class Workout(db.Model):
     __tablename__ = 'workouts'
@@ -19,6 +21,8 @@ class Workout(db.Model):
     date = db.Column(db.Date, nullable=False)
     duration_minutes = db.Column(db.Integer, nullable=False)
     notes = db.Column(db.Text)
+
+    workout_exercises = db.relationship('WorkoutExercise', backref='workout', cascade='all, delete-orphan')
 
 
 class WorkoutExercise(db.Model):
