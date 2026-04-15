@@ -11,8 +11,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 migrate = Migrate(app, db)
 db.init_app(app)
 
-
-
 def validate_reps_sets_duration(data):
 
     has_reps_sets = data.get('reps') is not None and data.get('sets') is not None
@@ -90,6 +88,7 @@ workouts_schema = WorkoutSchema(many=True)
 workout_exercise_schema = WorkoutExerciseSchema()
 
 
+
 @app.errorhandler(ValidationError)
 def handle_validation_error(error):
     return make_response(jsonify({'errors': error.messages}), 400)
@@ -103,60 +102,183 @@ def handle_not_found(error):
     return make_response(jsonify({'error': 'Resource not found'}), 404)
 
 
-
 @app.route('/workouts', methods=['GET'])
 def get_workouts():
-
-    pass
-
-@app.route('/workouts', methods=['GET'])
-def get_workouts():
-
-    pass
+  
+    workouts = Workout.query.all()
+    result = workouts_schema.dump(workouts)
+    return make_response(jsonify(result), 200)
 
 @app.route('/workouts/<int:id>', methods=['GET'])
 def get_workout(id):
-
-    pass
+   
+    workout = Workout.query.get(id)
+    if not workout:
+        return make_response(jsonify({'error': 'Workout not found'}), 404)
+    
+  
+    workout_data = workout_schema.dump(workout)
+    exercises_data = []
+    
+    for we in workout.workout_exercises:
+        exercise_info = we.exercise.to_dict()
+        exercise_info['workout_exercise_details'] = {
+            'reps': we.reps,
+            'sets': we.sets,
+            'duration_seconds': we.duration_seconds,
+            'workout_exercise_id': we.id
+        }
+        exercises_data.append(exercise_info)
+    
+    workout_data['exercises'] = exercises_data
+    return make_response(jsonify(workout_data), 200)
 
 @app.route('/workouts', methods=['POST'])
 def create_workout():
-  
-    pass
+   
+    try:
+        data = request.get_json()
+        validated_data = workout_schema.load(data)
+        
+        workout = Workout(
+            date=validated_data['date'],
+            duration_minutes=validated_data['duration_minutes'],
+            notes=validated_data.get('notes')
+        )
+        
+        db.session.add(workout)
+        db.session.commit()
+        
+        result = workout_schema.dump(workout)
+        return make_response(jsonify(result), 201)
+    
+    except ValidationError as e:
+        return make_response(jsonify({'errors': e.messages}), 400)
+    except ValueError as e:
+        return make_response(jsonify({'error': str(e)}), 400)
 
 @app.route('/workouts/<int:id>', methods=['DELETE'])
 def delete_workout(id):
-
-    pass
-
+ 
+    workout = Workout.query.get(id)
+    if not workout:
+        return make_response(jsonify({'error': 'Workout not found'}), 404)
+    
+    db.session.delete(workout)
+    db.session.commit()
+    
+    return make_response(jsonify({'message': 'Workout successfully deleted'}), 200)
 
 
 @app.route('/exercises', methods=['GET'])
 def get_exercises():
 
-    pass
+    exercises = Exercise.query.all()
+    result = exercises_schema.dump(exercises)
+    return make_response(jsonify(result), 200)
 
 @app.route('/exercises/<int:id>', methods=['GET'])
 def get_exercise(id):
+   
+    exercise = Exercise.query.get(id)
+    if not exercise:
+        return make_response(jsonify({'error': 'Exercise not found'}), 404)
 
-    pass
+    exercise_data = exercise_schema.dump(exercise)
+    workouts_data = []
+    
+    for we in exercise.workout_exercises:
+        workout_info = we.workout.to_dict()
+        workout_info['workout_exercise_details'] = {
+            'reps': we.reps,
+            'sets': we.sets,
+            'duration_seconds': we.duration_seconds
+        }
+        workouts_data.append(workout_info)
+    
+    exercise_data['workouts'] = workouts_data
+    return make_response(jsonify(exercise_data), 200)
 
 @app.route('/exercises', methods=['POST'])
 def create_exercise():
-
-    pass
+    
+    try:
+        data = request.get_json()
+        validated_data = exercise_schema.load(data)
+        
+        exercise = Exercise(
+            name=validated_data['name'],
+            category=validated_data['category'],
+            equipment_needed=validated_data.get('equipment_needed', False)
+        )
+        
+        db.session.add(exercise)
+        db.session.commit()
+        
+        result = exercise_schema.dump(exercise)
+        return make_response(jsonify(result), 201)
+    
+    except ValidationError as e:
+        return make_response(jsonify({'errors': e.messages}), 400)
+    except ValueError as e:
+        return make_response(jsonify({'error': str(e)}), 400)
 
 @app.route('/exercises/<int:id>', methods=['DELETE'])
 def delete_exercise(id):
-
-    pass
+  
+    exercise = Exercise.query.get(id)
+    if not exercise:
+        return make_response(jsonify({'error': 'Exercise not found'}), 404)
+    
+    db.session.delete(exercise)
+    db.session.commit()
+    
+    return make_response(jsonify({'message': 'Exercise successfully deleted'}), 200)
 
 
 
 @app.route('/workouts/<int:workout_id>/exercises/<int:exercise_id>/workout_exercises', methods=['POST'])
 def add_exercise_to_workout(workout_id, exercise_id):
 
-    pass
+    try:
+      
+        workout = Workout.query.get(workout_id)
+        if not workout:
+            return make_response(jsonify({'error': 'Workout not found'}), 404)
+        
+        exercise = Exercise.query.get(exercise_id)
+        if not exercise:
+            return make_response(jsonify({'error': 'Exercise not found'}), 404)
+        
+        data = request.get_json()
+        data['workout_id'] = workout_id
+        data['exercise_id'] = exercise_id
+        
+  
+        validated_data = workout_exercise_schema.load(data)
+        
+   
+        workout_exercise = WorkoutExercise(
+            workout_id=workout_id,
+            exercise_id=exercise_id,
+            reps=validated_data.get('reps'),
+            sets=validated_data.get('sets'),
+            duration_seconds=validated_data.get('duration_seconds')
+        )
+        
+     
+        workout_exercise.validate_complete()
+        
+        db.session.add(workout_exercise)
+        db.session.commit()
+        
+        result = workout_exercise_schema.dump(workout_exercise)
+        return make_response(jsonify(result), 201)
+    
+    except ValidationError as e:
+        return make_response(jsonify({'errors': e.messages}), 400)
+    except ValueError as e:
+        return make_response(jsonify({'error': str(e)}), 400)
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
