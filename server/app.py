@@ -33,7 +33,7 @@ class ExerciseSchema(Schema):
         validate.OneOf(['strength', 'cardio', 'flexibility', 'balance', 'endurance'],
                       error="Category must be one of: strength, cardio, flexibility, balance, endurance")
     ])
-    equipment_needed = fields.Bool(missing=False)
+    equipment_needed = fields.Bool(dump_default=False)
     
     @pre_load
     def validate_name_not_empty(self, data, **kwargs):
@@ -49,7 +49,7 @@ class WorkoutSchema(Schema):
     duration_minutes = fields.Int(required=True, validate=[
         validate.Range(min=1, max=480, error="Duration must be between 1 and 480 minutes")
     ])
-    notes = fields.Str(missing=None, allow_none=True)
+    notes = fields.Str(dump_default=None, allow_none=True)
     
     @pre_load
     def validate_date_format(self, data, **kwargs):
