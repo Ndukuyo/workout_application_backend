@@ -1,5 +1,6 @@
 from flask import Flask, make_response, request, jsonify
 from flask_migrate import Migrate
+from marshmallow import Schema, fields
 from models import db, Exercise, Workout, WorkoutExercise
 
 app = Flask(__name__)
@@ -9,7 +10,45 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 migrate = Migrate(app, db)
 db.init_app(app)
 
+class ExerciseSchema(Schema):
+    id = fields.Int(dump_only=True)
+    name = fields.Str()
+    category = fields.Str()
+    equipment_needed = fields.Bool()
 
+class WorkoutSchema(Schema):
+    id = fields.Int(dump_only=True)
+    date = fields.Date()
+    duration_minutes = fields.Int()
+    notes = fields.Str()
+
+class WorkoutExerciseSchema(Schema):
+    id = fields.Int(dump_only=True)
+    workout_id = fields.Int()
+    exercise_id = fields.Int()
+    reps = fields.Int(allow_none=True)
+    sets = fields.Int(allow_none=True)
+    duration_seconds = fields.Int(allow_none=True)
+
+
+exercise_schema = ExerciseSchema()
+exercises_schema = ExerciseSchema(many=True)
+workout_schema = WorkoutSchema()
+workouts_schema = WorkoutSchema(many=True)
+workout_exercise_schema = WorkoutExerciseSchema()
+
+
+
+@app.errorhandler(404)
+def handle_not_found(error):
+    return make_response(jsonify({'error': 'Resource not found'}), 404)
+
+
+
+@app.route('/workouts', methods=['GET'])
+def get_workouts():
+
+    pass
 
 @app.route('/workouts', methods=['GET'])
 def get_workouts():
@@ -23,12 +62,12 @@ def get_workout(id):
 
 @app.route('/workouts', methods=['POST'])
 def create_workout():
-
+  
     pass
 
 @app.route('/workouts/<int:id>', methods=['DELETE'])
 def delete_workout(id):
-  
+
     pass
 
 
@@ -52,6 +91,8 @@ def create_exercise():
 def delete_exercise(id):
 
     pass
+
+
 
 @app.route('/workouts/<int:workout_id>/exercises/<int:exercise_id>/workout_exercises', methods=['POST'])
 def add_exercise_to_workout(workout_id, exercise_id):
