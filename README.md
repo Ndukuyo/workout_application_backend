@@ -20,4 +20,8 @@ pipenv shell
 python seed.py
 
 # Run server
-python app.py
+To run :
+1. Move into the app folder:
+   cd app
+2. Run program:  
+   python app.py
