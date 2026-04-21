@@ -10,16 +10,21 @@ A workout app for personal trainers to manage workouts and exercises. Track exer
 - Marshmallow
 - SQLite
 
-## Installation
-
-# Install dependencies
+## Setup and Running instructions
+1. Install dependencies
 pipenv install flask flask-sqlalchemy flask-migrate marshmallow marshmallow-sqlalchemy sqlalchemy
 pipenv shell
 
-# Seed data
+2. Setup Database
+   - While in the app folder:
+   - flask db init
+   - flask dm migrate -m "message"
+   - flask db upgrade
+
+3 Seed the database
 python seed.py
 
-# Run application
+4 Run application
 To run :
 1. Move into the app folder:
    cd app
