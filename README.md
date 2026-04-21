@@ -19,7 +19,7 @@ pipenv shell
 # Seed data
 python seed.py
 
-# Run server
+# Run application
 To run :
 1. Move into the app folder:
    cd app
