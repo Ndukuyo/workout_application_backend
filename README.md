@@ -34,14 +34,14 @@ To run :
 5 End points
 
 **Method	         Endpoint                  	                           Description**
-GET	            /workouts	                                          List all workouts
-GET	            /workouts/<id>	                                       Get workout with exercises
-POST	            /workouts	                                          Create workout
-DELETE           	/workouts/<id>	                                       Delete workout
-GET	            /exercises	                                          List all exercises
-GET	            /exercises/<id>	                                    Get exercise with workouts
-POST	            /exercises	                                          Create exercise
-DELETE	         /exercises/<id>	                                    Delete exercise
-POST	            /workouts/<id>/exercises/<id>/workout_exercises      	Add exercise to workout
+-GET	            /workouts	                                          List all workouts
+-GET	            /workouts/<id>	                                       Get workout with exercises
+-POST	            /workouts	                                          Create workout
+-DELETE           /workouts/<id>	                                       Delete workout
+-GET	            /exercises	                                          List all exercises
+-GET	            /exercises/<id>	                                    Get exercise with workouts
+-POST	            /exercises	                                          Create exercise
+-DELETE	         /exercises/<id>	                                    Delete exercise
+-POST	            /workouts/<id>/exercises/<id>/workout_exercises      	Add exercise to workout
 
 
