@@ -26,7 +26,22 @@ python seed.py
 
 4 Run application
 To run :
-1. Move into the app folder:
+- Move into the app folder:
    cd app
-2. Run program:  
+- Run program:  
    python app.py
+  
+5 End points
+
+**Method	         Endpoint                  	                           Description**
+GET	            /workouts	                                          List all workouts
+GET	            /workouts/<id>	                                       Get workout with exercises
+POST	            /workouts	                                          Create workout
+DELETE           	/workouts/<id>	                                       Delete workout
+GET	            /exercises	                                          List all exercises
+GET	            /exercises/<id>	                                    Get exercise with workouts
+POST	            /exercises	                                          Create exercise
+DELETE	         /exercises/<id>	                                    Delete exercise
+POST	            /workouts/<id>/exercises/<id>/workout_exercises      	Add exercise to workout
+
+
